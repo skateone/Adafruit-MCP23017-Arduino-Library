@@ -27,6 +27,9 @@ public:
 
   void writeGPIOAB(uint16_t);
   uint16_t readGPIOAB();
+  void intEnable(uint8_t p, uint8_t d);
+  void intDefaultVal(uint8_t p, uint8_t d);
+  void intCon(uint8_t p, uint8_t d) ;
 
  private:
   uint8_t i2caddr;

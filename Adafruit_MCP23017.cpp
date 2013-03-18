@@ -59,6 +59,17 @@ void Adafruit_MCP23017::begin(uint8_t addr) {
   wiresend(MCP23017_IODIRB);
   wiresend(0xFF);  // all inputs on port B
   Wire.endTransmission();
+  
+  
+  //default IOCON register pairs GPA and GPB interrupt outputs
+  Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(MCP23017_IOCONA);
+  wiresend(0x40);  
+  Wire.endTransmission();
+    Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(MCP23017_IOCONB);
+  wiresend(0x40);  
+  Wire.endTransmission();
 }
 
 
@@ -228,3 +239,119 @@ uint8_t Adafruit_MCP23017::digitalRead(uint8_t p) {
   Wire.requestFrom(MCP23017_ADDRESS | i2caddr, 1);
   return (wirerecv() >> p) & 0x1;
 }
+
+
+void Adafruit_MCP23017::intEnable(uint8_t p, uint8_t d) {
+  uint8_t gppu;
+  uint8_t gppuaddr;
+
+  // only 16 bits!
+  if (p > 15)
+    return;
+
+  if (p < 8)
+    gppuaddr = MCP23017_GPINTENA;
+  else {
+    gppuaddr = MCP23017_GPINTENB;
+    p -= 8;
+  }
+
+
+  // read the current pullup resistor set
+  Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(gppuaddr);	
+  Wire.endTransmission();
+  
+  Wire.requestFrom(MCP23017_ADDRESS | i2caddr, 1);
+  gppu = wirerecv();
+
+  // set the pin and direction
+  if (d == HIGH) {
+    gppu |= 1 << p; 
+  } else {
+    gppu &= ~(1 << p);
+  }
+
+  // write the new GPIO
+  Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(gppuaddr);
+  wiresend(gppu);	
+  Wire.endTransmission();
+}
+
+void Adafruit_MCP23017::intDefaultVal(uint8_t p, uint8_t d) {
+  uint8_t gppu;
+  uint8_t gppuaddr;
+
+  // only 16 bits!
+  if (p > 15)
+    return;
+
+  if (p < 8)
+    gppuaddr = MCP23017_DEFVALA;
+  else {
+    gppuaddr = MCP23017_DEFVALB;
+    p -= 8;
+  }
+
+
+  // read the current pullup resistor set
+  Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(gppuaddr);	
+  Wire.endTransmission();
+  
+  Wire.requestFrom(MCP23017_ADDRESS | i2caddr, 1);
+  gppu = wirerecv();
+
+  // set the pin and direction
+  if (d == HIGH) {
+    gppu |= 1 << p; 
+  } else {
+    gppu &= ~(1 << p);
+  }
+
+  // write the new GPIO
+  Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(gppuaddr);
+  wiresend(gppu);	
+  Wire.endTransmission();
+}
+
+void Adafruit_MCP23017::intCon(uint8_t p, uint8_t d) {
+  uint8_t gppu;
+  uint8_t gppuaddr;
+
+  // only 16 bits!
+  if (p > 15)
+    return;
+
+  if (p < 8)
+    gppuaddr = MCP23017_DEFVALA;
+  else {
+    gppuaddr = MCP23017_DEFVALB;
+    p -= 8;
+  }
+
+
+  // read the current pullup resistor set
+  Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(gppuaddr);	
+  Wire.endTransmission();
+  
+  Wire.requestFrom(MCP23017_ADDRESS | i2caddr, 1);
+  gppu = wirerecv();
+
+  // set the pin and direction
+  if (d == HIGH) {
+    gppu |= 1 << p; 
+  } else {
+    gppu &= ~(1 << p);
+  }
+
+  // write the new GPIO
+  Wire.beginTransmission(MCP23017_ADDRESS | i2caddr);
+  wiresend(gppuaddr);
+  wiresend(gppu);	
+  Wire.endTransmission();
+}
+
